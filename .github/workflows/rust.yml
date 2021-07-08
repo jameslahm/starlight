@@ -90,6 +90,7 @@ jobs:
         id: compare
         shell: bash
         run: |
+          cat new/latest.json
           comment=$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d | jq --raw-input --slurp '.')
           echo $comment > ./comment.txt
           echo $comment
