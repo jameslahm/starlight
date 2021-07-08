@@ -59,7 +59,7 @@ jobs:
           git commit -m "Add new test262 results" -a
           cd ..
       - name: Upload results
-        if: github.event_name == 'push'
+        if: github.event.workflow_run.event == 'push'
         uses: ad-m/github-push-action@v0.6.0
         with:
           directory: test262-base
