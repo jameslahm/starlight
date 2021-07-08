@@ -10,9 +10,14 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  check-linux:
-    runs-on: ubuntu-latest
-
+  check:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+          - os: ubuntu-latest
+          - os: windows-latest
     steps:
       - uses: actions/checkout@v2
       - name: Setup nightly
@@ -26,60 +31,54 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose -- --test-threads 1
-      - name: Submodule update
-        run: git submodule update --init
-      - name: Run test262 tests
-        run: cargo run --release --bin test262-runner run
-
-  check-macos:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup nightly
-        run: rustup default nightly
-      - uses: actions/cache@v2
+      # - name: Build
+      #   run: cargo build --verbose
+      # - name: Run tests
+      #   run: cargo test --verbose -- --test-threads 1
+      # - name: Submodule update
+      #   run: git submodule update --init
+      # - name: Run test262 tests
+      #   run: cargo run --release --bin test262-runner run -o new
+      # Run the test suite and upload the results
+      # Run the results comparison
+      - name: Checkout Test262 Results
+        uses: actions/checkout@v2.3.4
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose -- --test-threads 1
-      - name: Submodule update
-        run: git submodule update --init
-      - name: Run test262 tests
-        run: cargo run --release --bin test262-runner run
-  check-windows:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup nightly
-        run: rustup default nightly
-      - uses: actions/cache@v2
+          repository: Starlight-JS/test262
+          path: test262-base
+      - name: Compare results
+        if: github.event_name == 'pull_request'
+        id: compare
+        shell: bash
+        run: |
+          comment="$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d)"
+          comment="${comment//'%'/'%25'}"
+          comment="${comment//$'\n'/'%0A'}"
+          comment="${comment//$'\r'/'%0D'}"
+          echo $comment > ./comment.txt
+      - name: upload comment artifact
+        if: startsWith(matrix.os,'ubuntu') and ${{success()}}
+        uses: actions/upload-artifact@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose -- --test-threads 1
-      - name: Submodule update
-        run: git submodule update --init
-      - name: Run test262 tests
-        run: cargo run --release --bin test262-runner run
+          name: comment
+          path: ./comment.txt
+          retention-days: 3
+
+      # Upload PR id for next workflow use
+      - name: Save PR number
+        if: ${{ always() }}
+        run: echo ${{ github.event.number }} > ./pr-id.txt
+
+      - name: Upload PR number
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr
+          path: ./pr-id.txt
+
+      - name: Upload New Results
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr
+          path: ./pr-id.txt
