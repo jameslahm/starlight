@@ -58,17 +58,17 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-v1
       - name: Save sccache
         uses: actions/cache@v2
         continue-on-error: false
         with:
           path: ${{ matrix.sccache-path }}
-          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-sccache-v1-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-sccache-
+            ${{ runner.os }}-sccache-v1
       - name: Start sccache server
         run: sccache --start-server
       # - name: Build
@@ -87,14 +87,14 @@ jobs:
           ref: test262-base
           path: test262-base
       - name: Compare results
-        if: github.event_name == 'pull_request'
         id: compare
         shell: bash
         run: |
           comment=$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d | jq --raw-input --slurp '.')
           echo $comment > ./comment.txt
+          echo $comment
       - name: Upload comment artifact
-        if: startsWith(matrix.os,'ubuntu') && github.event_name == 'pull_request' && ${{ success() }}
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v2
         with:
           name: comment
