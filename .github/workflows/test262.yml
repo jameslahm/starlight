@@ -35,7 +35,7 @@ jobs:
         id: comment
         run: echo "::set-output name=comment::$(<comment.txt)"
       - name: maintain-comment
-        if: github.event_name == 'pull_request'
+        if: github.event.workflow_run.event == 'pull_request'
         uses: actions-cool/maintain-one-comment@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +49,7 @@ jobs:
           path: test262-base
       # Commit changes to GitHub pages.
       - name: Commit files
-        if: github.event_name == 'push'
+        if: github.event.workflow_run.event == 'push'
         run: |
           cp -r new/* test262-base/basic
           cd test262-base
