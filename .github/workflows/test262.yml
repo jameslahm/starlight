@@ -45,7 +45,7 @@ jobs:
       - name: Checkout Test262 Results
         uses: actions/checkout@v2.3.4
         with:
-          repository: Starlight-JS/test262
+          ref: test262-base
           path: test262-base
       # Commit changes to GitHub pages.
       - name: Commit files
