@@ -10,9 +10,7 @@ jobs:
   test262:
     name: check-test262
     runs-on: ubuntu-latest
-    if: >
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       # Get PR id first
       - name: download pr artifact
@@ -47,6 +45,12 @@ jobs:
         with:
           ref: test262-base
           path: test262-base
+      - name: download results artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+          name: new
       # Commit changes to GitHub pages.
       - name: Commit files
         if: github.event.workflow_run.event == 'push'
@@ -58,7 +62,7 @@ jobs:
           git add .
           git commit -m "Add new test262 results" -a
           cd ..
-      - name: Upload results
+      - name: push results
         if: github.event.workflow_run.event == 'push'
         uses: ad-m/github-push-action@v0.6.0
         with:
