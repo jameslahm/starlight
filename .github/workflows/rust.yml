@@ -36,7 +36,7 @@ jobs:
       - name: Checkout Test262 Results
         uses: actions/checkout@v2.3.4
         with:
-          repository: Starlight-JS/test262
+          ref: test262-base
           path: test262-base
       - name: Compare results
         if: github.event_name == 'pull_request'
@@ -44,12 +44,9 @@ jobs:
         shell: bash
         run: |
           comment="$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d)"
-          comment="${comment//'%'/'%25'}"
-          comment="${comment//$'\n'/'%0A'}"
-          comment="${comment//$'\r'/'%0D'}"
           echo $comment > ./comment.txt
       - name: upload comment artifact
-        if: startsWith(matrix.os,'ubuntu') and ${{success()}}
+        if: startsWith(matrix.os,'ubuntu') && ${{ success() }}
         uses: actions/upload-artifact@v2
         with:
           name: comment
