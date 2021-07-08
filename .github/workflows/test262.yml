@@ -75,4 +75,5 @@ jobs:
         uses: ad-m/github-push-action@v0.6.0
         with:
           directory: test262-base
+          branch: test262-base
           github_token: ${{ secrets.GITHUB_TOKEN }}
