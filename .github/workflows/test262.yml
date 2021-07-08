@@ -13,26 +13,30 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     steps:
       # Get PR id first
-      - name: download pr artifact
+      - name: Download pr artifact
         uses: dawidd6/action-download-artifact@v2
+        if: github.event.workflow_run.event == 'pull_request'
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           name: pr
       # Save PR id to output
-      - name: save PR id
+      - name: Save PR id
         id: pr
+        if: github.event.workflow_run.event == 'pull_request'
         run: echo "::set-output name=id::$(<pr-id.txt)"
       # Download comment artifact
-      - name: download comment artifact
+      - name: Download comment artifact
         uses: dawidd6/action-download-artifact@v2
+        if: github.event.workflow_run.event == 'pull_request'
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
           name: comment
-      - name: save comment
+      - name: Save comment
         id: comment
+        if: github.event.workflow_run.event == 'pull_request'
         run: echo "::set-output name=comment::$(<comment.txt)"
-      - name: maintain-comment
+      - name: Maintain comment
         if: github.event.workflow_run.event == 'pull_request'
         uses: actions-cool/maintain-one-comment@v2.0.0
         with:
@@ -42,10 +46,12 @@ jobs:
           number: ${{ steps.pr.outputs.id }}
       - name: Checkout Test262 Results
         uses: actions/checkout@v2.3.4
+        if: github.event.workflow_run.event == 'push'
         with:
           ref: test262-base
           path: test262-base
-      - name: download results artifact
+      - name: Download results artifact
+        if: github.event.workflow_run.event == 'push'
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ${{ github.event.workflow_run.workflow_id }}
@@ -62,7 +68,7 @@ jobs:
           git add .
           git commit -m "Add new test262 results" -a
           cd ..
-      - name: push results
+      - name: Push results
         if: github.event.workflow_run.event == 'push'
         uses: ad-m/github-push-action@v0.6.0
         with:

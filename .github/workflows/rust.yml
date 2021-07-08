@@ -14,6 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest]
         rust: [nightly]
         include:
           - os: ubuntu-latest
@@ -91,8 +92,11 @@ jobs:
         shell: bash
         run: |
           comment="$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d)"
+          comment="${comment//'%'/'%25'}"
+          comment="${comment//$'\n'/'%0A'}"
+          comment="${comment//$'\r'/'%0D'}"
           echo $comment > ./comment.txt
-      - name: upload comment artifact
+      - name: Upload comment artifact
         if: startsWith(matrix.os,'ubuntu') && github.event_name == 'pull_request' && ${{ success() }}
         uses: actions/upload-artifact@v2
         with:
@@ -113,7 +117,7 @@ jobs:
           path: ./pr-id.txt
 
       - name: Upload New Results
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v2
         with:
           name: new
