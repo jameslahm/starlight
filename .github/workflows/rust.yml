@@ -57,6 +57,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            target
           key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-v1
@@ -70,14 +71,14 @@ jobs:
             ${{ runner.os }}-sccache-v1
       - name: Start sccache server
         run: sccache --start-server
-      # - name: Build
-      #   run: cargo build --verbose
-      # - name: Run tests
-      #   run: cargo test --verbose -- --test-threads 1
-      # - name: Submodule update
-      #   run: git submodule update --init
-      # - name: Run test262 tests
-      #   run: cargo run --release --bin test262-runner run -o new
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose -- --test-threads 1
+      - name: Submodule update
+        run: git submodule update --init
+      - name: Run test262 tests
+        run: cargo run --release --bin test262-runner run -o new
       # Run the test suite and upload the results
       # Run the results comparison
       - name: Checkout Test262 Results
