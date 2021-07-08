@@ -1,10 +1,10 @@
 name: Test262
 
 on:
-  workflow_run:
-    workflows: ["Rust"]
-    types:
-      - completed
+  push:
+    branches: [dev]
+  pull_request_target:
+    branches: [dev]
 
 jobs:
   test262:
