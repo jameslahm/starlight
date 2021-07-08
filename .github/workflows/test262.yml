@@ -61,7 +61,7 @@ jobs:
       - name: Commit files
         if: github.event.workflow_run.event == 'push'
         run: |
-          cp -r new/* test262-base/basic
+          cp *.json test262-base/basic
           cd test262-base
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
