@@ -41,7 +41,7 @@ jobs:
         uses: actions-cool/maintain-one-comment@v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          body: ${{ steps.comment.outputs.comment }}
+          body: ${{ fromJSON(steps.comment.outputs.comment) }}
           body-include: "Test262 conformance changes"
           number: ${{ steps.pr.outputs.id }}
       - name: Checkout Test262 Results
