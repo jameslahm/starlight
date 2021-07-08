@@ -91,10 +91,7 @@ jobs:
         id: compare
         shell: bash
         run: |
-          comment="$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d)"
-          comment="${comment//'%'/'%25'}"
-          comment="${comment//$'\n'/'%0A'}"
-          comment="${comment//$'\r'/'%0D'}"
+          comment=$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d | jq --raw-input --slurp '.')
           echo $comment > ./comment.txt
       - name: Upload comment artifact
         if: startsWith(matrix.os,'ubuntu') && github.event_name == 'pull_request' && ${{ success() }}
