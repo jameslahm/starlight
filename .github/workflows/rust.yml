@@ -86,7 +86,6 @@ jobs:
       #   run: git submodule update --init
       # - name: Run test262 tests
       #   run: cargo run --release --bin test262-runner run -o new
-      
       # # Run the test suite and upload the results
       # # Run the results comparison
       # - name: Checkout Test262 Results
