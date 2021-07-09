@@ -198,7 +198,7 @@ pub(crate) fn compare_results(base: &Path, new: &Path, markdown: bool, detail: b
         }
 
         println!("### Test262 conformance changes:");
-        println!("| Test result | master count | PR count | difference |");
+        println!("| Test result | Dev count | PR count | Difference |");
         println!("| :---------: | :----------: | :------: | :--------: |");
         println!(
             "| Total | {} | {} | {} |",
@@ -252,7 +252,7 @@ pub(crate) fn compare_results(base: &Path, new: &Path, markdown: bool, detail: b
         );
     } else {
         println!("Test262 conformance changes:");
-        println!("| Test result | master |    PR   | difference |");
+        println!("| Test result | Dev count | PR count | Difference |");
         println!(
             "|    Passed   | {:^6} | {:^5} | {:^10} |",
             base_passed,

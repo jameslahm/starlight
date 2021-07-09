@@ -22,7 +22,7 @@ jobs:
           - os: macos-latest
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
           - os: windows-latest
-            sccache-path: ~/AppData/Local/Mozilla/sccache
+            sccache-path: C:\Users\runner\AppData\Local\Mozilla\sccache
     env:
       RUST_BACKTRACE: full
       RUSTC_WRAPPER: sccache
