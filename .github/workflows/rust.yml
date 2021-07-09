@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest]
         rust: [nightly]
         include:
           - os: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
           - os: macos-latest
             sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
           - os: windows-latest
-            sccache-path: ~/AppData/Local/Mozilla/sccache
+            sccache-path: C:\Users\runner\AppData\Local\Mozilla\sccache
     env:
       RUST_BACKTRACE: full
       RUSTC_WRAPPER: sccache
@@ -79,53 +79,53 @@ jobs:
       - name: Start sccache server
         run: sccache --start-server
       - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose -- --test-threads 1
-      - name: Submodule update
-        run: git submodule update --init
-      - name: Run test262 tests
-        run: cargo run --release --bin test262-runner run -o new
-      # Run the test suite and upload the results
-      # Run the results comparison
-      - name: Checkout Test262 Results
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: test262-base
-          path: test262-base
-      - name: Compare results
-        id: compare
-        shell: bash
-        run: |
-          comment=$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d | jq --raw-input --slurp '.')
-          echo $comment > ./comment.txt
-          echo $comment
-      - name: Upload comment artifact
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v2
-        with:
-          name: comment
-          path: ./comment.txt
-          retention-days: 3
+        run: cargo build --bin sl --verbose
+      # - name: Run tests
+      #   run: cargo test --verbose -- --test-threads 1
+      # - name: Submodule update
+      #   run: git submodule update --init
+      # - name: Run test262 tests
+      #   run: cargo run --release --bin test262-runner run -o new
+      # # Run the test suite and upload the results
+      # # Run the results comparison
+      # - name: Checkout Test262 Results
+      #   uses: actions/checkout@v2.3.4
+      #   with:
+      #     ref: test262-base
+      #     path: test262-base
+      # - name: Compare results
+      #   id: compare
+      #   shell: bash
+      #   run: |
+      #     comment=$(cargo run --release --bin test262-runner compare test262-base/basic/latest.json new/latest.json -m -d | jq --raw-input --slurp '.')
+      #     echo $comment > ./comment.txt
+      #     echo $comment
+      # - name: Upload comment artifact
+      #   if: github.event_name == 'pull_request'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: comment
+      #     path: ./comment.txt
+      #     retention-days: 3
 
-      # Upload PR id for next workflow use
-      - name: Save PR number
-        if: github.event_name == 'pull_request'
-        run: echo ${{ github.event.number }} > ./pr-id.txt
+      # # Upload PR id for next workflow use
+      # - name: Save PR number
+      #   if: github.event_name == 'pull_request'
+      #   run: echo ${{ github.event.number }} > ./pr-id.txt
 
-      - name: Upload PR number
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v2
-        with:
-          name: pr
-          path: ./pr-id.txt
+      # - name: Upload PR number
+      #   if: github.event_name == 'pull_request'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: pr
+      #     path: ./pr-id.txt
 
-      - name: Upload New Results
-        if: github.event_name == 'push'
-        uses: actions/upload-artifact@v2
-        with:
-          name: new
-          path: ./new/
+      # - name: Upload New Results
+      #   if: github.event_name == 'push'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: new
+      #     path: ./new/
       - name: Print sccache stats
         run: sccache --show-stats
       - name: Stop sccache server
